@@ -1,0 +1,29 @@
+button {
+    --green: #6ca965;
+    --yellow: #c8b653;
+    --gray: #787c7f;
+    --size: 64px;
+
+    height: var(--size);
+    width: var(--size);
+    border: none;
+
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 2.5rem;
+
+    margin: 4px;
+}
+
+button.green {
+    background-color: var(--green);
+}
+
+button.yellow {
+    background-color: var(--yellow);
+}
+
+button.black {
+    background-color: var(--gray);
+}

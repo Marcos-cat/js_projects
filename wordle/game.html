@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Wordle Game</title>
+      <style>:root {
+         --border-color: #3a3a3c;
+         --box-border: 2px solid var(--border-color);
+         --font-color: #ddd;
+         --background-color: #121213;
+         --font: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+         --green-color: #538d4e;
+         --yellow-color: #b49c3c;
+         --black-color: #3a3a3c;
+         --box-size: 70px;
+         }
+         html,
+         body, 
+         div#main {
+         background-color: var(--background-color);
+         display: flex;
+         flex-direction: column;
+         align-items: center;
+         }
+         div#main {
+         opacity: 0;
+         transition: opacity 0.3s linear;
+         }
+         h1 {
+         color: var(--font-color);
+         font-size: 50px;
+         font-family: var(--font);
+         width: fit-content;
+         }
+         h3 {
+         color: var(--font-color);
+         font-size: 40px;
+         font-family: var(--font);
+         width: fit-content;
+         margin: 10px;
+         }
+         div#modal {
+         visibility: hidden;
+         width: 350px;
+         max-width: 70%;
+         height: 200px;
+         position: fixed;
+         top: 50%;
+         left: 50%;
+         translate: -50% -50%;
+         padding: 10px;
+         border: var(--box-border);
+         display: flex;
+         flex-direction: column;
+         align-items: center;
+         background-color: var(--background-color);
+         }
+         h3#modal-title {
+         color: var(--font-color);
+         text-align: center;
+         font-family: var(--font);
+         font-size: xx-large;
+         margin: 5px;
+         }
+         b {
+         text-transform: uppercase;
+         }
+         p#modal-text {
+         text-align: center;
+         color: var(--font-color);
+         font-family: var(--font);
+         font-size: large;
+         margin: 10px;
+         margin-bottom: 5px;
+         width: 70%;
+         }
+         button#modal-exit {
+         background-color: var(--font-color);
+         color: var(--background-color);
+         font-family: var(--font);
+         font-size: medium;
+         border: none;
+         margin-top: auto;
+         margin-bottom: 10px;
+         height: 100%;
+         max-height: 30px;
+         width: 80%;
+         }
+         div#content {
+         display: flex;
+         justify-content: center;
+         flex-direction: row;
+         }
+         p#possible-words {
+         color: var(--font-color);
+         padding: 5px;
+         font-size: small;
+         line-height: 18px;
+         font-family: 'Courier New', Courier, monospace;
+         max-height: 100%;
+         width: 80%;
+         max-width: 500px;
+         overflow: scroll;
+         text-align: center;
+         border: var(--box-border);
+         }
+         .item {
+         margin: 20px;
+         }
+         div#words-container {
+         display: flex;
+         flex-direction: column;
+         align-items: center;
+         width: 50%;
+         height: 500px;
+         padding: none;
+         }
+         div#grid {
+         display: grid;
+         justify-items: center;
+         align-items: center;
+         grid-template-columns: repeat(5, auto);
+         grid-template-rows: repeat(6, auto);
+         padding: 10px;
+         gap: 6px;
+         width: fit-content;
+         height: fit-content;
+         }
+         div.box {
+         width: var(--box-size);
+         height: var(--box-size);
+         border: var(--box-border);
+         font-family: var(--font);
+         font-size: 45px;
+         font-weight: bold;
+         color: var(--font-color);
+         text-transform: uppercase;
+         display: flex;
+         justify-content: center;
+         align-items: center;
+         }
+         div.box[color='none'] {
+         background-color: var(--background-color);
+         }
+         div.box[color='green'] {
+         background-color: var(--green-color);
+         }
+         div.box[color='yellow'] {
+         background-color: var(--yellow-color);
+         }
+         div.box[color='black'] {
+         background-color: var(--black-color);
+         }
+         :root{
+         --background-color: #121213;
+         --border-width: 2px;
+         }
+         @keyframes flip {
+         0% {
+         transform: scaleY(1);
+         background-color: var(--background-color);
+         }
+         50% {
+         transform: scaleY(0);
+         background-color: var(--background-color);
+         }
+         100% {
+         transform: scaleY(1);
+         }
+         }
+         div.box:not([color='none']) {
+         animation: flip 1s ease-in-out;
+         }
+         p {
+         text-align: center;
+         color: var(--font-color);
+         font-family: var(--font);
+         font-size: large;
+         margin: 10px;
+         }
+      </style>
+   </head>
+   <div id="main">
+      <h1>Wordle Game</h1>
+      <p>Made by Marcos Grzesiak</p>
+      <div id="content">
+         <div class="item" id="grid"></div>
+      </div>
+   </div>
+   <div id="modal">
+      <h3 id="modal-title"></h3>
+      <p id="modal-text"></p>
+      <button id="modal-exit"></button>
+   </div>
+   <script>"use strict";
+      //TODO make the win modal appear after the animation
+      var main = document.querySelector('div#main');
+      var gridBox = document.querySelector('div#grid');
+      var modal = document.querySelector('div#modal');
+      var modalTitle = document.querySelector('h3#modal-title');
+      var modalText = document.querySelector('p#modal-text');
+      var modalExit = document.querySelector('button#modal-exit');
+      if (!gridBox)
+          throw new Error('Element Not Found');
+      var Input;
+      (function (Input) {
+          Input["TYPING"] = "typing";
+          Input["WIN"] = "win";
+          Input["LOSE"] = "lose";
+      })(Input || (Input = {}));
+      var columns = {
+          NUMBER: 5,
+          FIRST: 0
+      };
+      var rows = {
+          NUMBER: 6,
+          FIRST: 0
+      };
+      var animationDurationMs = 1500;
+      var state = {
+          row: 0,
+          column: 0,
+          input: Input.TYPING,
+          isModal: false
+      };
+      var color;
+      (function (color) {
+          color["GREEN"] = "green";
+          color["YELLOW"] = "yellow";
+          color["BLACK"] = "black";
+          color["NONE"] = "none";
+      })(color || (color = {}));
+      var wordLength = 5;
+      var winningColors = 'ggggg';
+      var specialKey = {
+          backspace: 'Backspace',
+          enter: 'Enter'
+      };
+      var prompts = {
+          unfinishedWord: {
+              title: 'Word Incomplete',
+              text: 'Please finish typing the word before hitting enter.',
+              exit: 'Finish'
+          },
+          badWord: {
+              title: 'Invalid Word',
+              text: 'The word you are trying to input is not a valid word. Please try again.',
+              exit: 'Fix'
+          },
+          win: function (secretWord, numOfGuesses) {
+              return {
+                  title: 'You won!',
+                  text: "You succesfully guessed that the secret word was <b>".concat(secretWord, "</b> in ").concat(numberToWord(numOfGuesses), " ").concat(numOfGuesses === 1 ? 'try' : 'tries', "."),
+                  exit: 'Refresh to play again'
+              };
+          },
+          lose: function (secretWord) {
+              return {
+                  title: 'You lost',
+                  text: "You failed to guess that the secret word was <b>".concat(secretWord, "</b> within six tries."),
+                  exit: 'Refresh to play again'
+              };
+          }
+      };
+      function numberToWord(number) {
+          switch (number) {
+              case 1:
+                  return 'one';
+              case 2:
+                  return 'two';
+              case 3:
+                  return 'three';
+              case 4:
+                  return 'four';
+              case 5:
+                  return 'five';
+              case 6:
+                  return 'six';
+              default:
+                  return '';
+          }
+      }
+      function makeSecretWord(wordList) {
+          var randomIndex = Math.floor(wordList.length * Math.random());
+          return wordList[randomIndex];
+      }
+      function setBackgroundOpacity(opacity) {
+          if (opacity === void 0) { opacity = 0; }
+          main.style.opacity = opacity.toString();
+      }
+      function makeGrid(contentBox) {
+          for (var row = 0; row < rows.NUMBER; row++) {
+              for (var column = 0; column < columns.NUMBER; column++) {
+                  var box = document.createElement('div');
+                  box.className = 'box';
+                  box.id = "box".concat(row).concat(column);
+                  box.setAttribute('color', 'none');
+                  contentBox.appendChild(box);
+              }
+          }
+      }
+      function closeModal() {
+          modal.style.visibility = 'hidden';
+          state.isModal = false;
+          setBackgroundOpacity(1);
+      }
+      function popupModal(_a) {
+          var title = _a.title, text = _a.text, exit = _a.exit;
+          if (!(modal && modalTitle && modalText && modalExit))
+              return;
+          modalTitle.innerHTML = title;
+          modalText.innerHTML = text;
+          modalExit.innerHTML = exit ? exit : 'OK';
+          modalExit.addEventListener('click', closeModal);
+          modal.style.visibility = 'visible';
+          state.isModal = true;
+          setBackgroundOpacity(0.1);
+      }
+      function keyIsLetter(char) {
+          var letters = 'abcdefghijklmnopqrstuvwxyz';
+          return letters.includes(char);
+      }
+      function keyPressed(key) {
+          var row = state.row, column = state.column;
+          var box = getBox(row, column);
+          if (!box)
+              return;
+          if (state.input === Input.TYPING) {
+              box.innerHTML = key;
+              state.column++;
+          }
+      }
+      function colorBox(box, color) {
+          box.setAttribute('color', color);
+      }
+      function backspace() {
+          var row = state.row, column = state.column;
+          if (column === columns.FIRST)
+              return;
+          var box = getBox(row, column - 1);
+          if (!box)
+              return;
+          if (state.input === Input.TYPING) {
+              box.innerHTML = '';
+          }
+          state.column--;
+      }
+      function getInputWord(row) {
+          var inputWord = '';
+          for (var column = 0; column < columns.NUMBER; column++) {
+              var box = getBox(row, column);
+              if (!box)
+                  throw new Error("Box ".concat(row, ", ").concat(column, " not found"));
+              inputWord += box.innerHTML;
+          }
+          return inputWord;
+      }
+      function wordIsAllowed(inputWord) {
+          return words.includes(inputWord);
+      }
+      function charsInWord(word, char) {
+          var num = 0;
+          for (var i = 0; i < word.length; i++) {
+              var wordChar = word[i];
+              if (wordChar === char) {
+                  num++;
+              }
+          }
+          return num;
+      }
+      function tryWords(inputWord, secretWord) {
+          if (inputWord.length !== wordLength || secretWord.length !== wordLength) {
+              throw new Error('Word length is not ' + wordLength.toString());
+          }
+          var outputColors = Array(5).fill('b');
+          var greenOrYellowChars = '';
+          // Add greens
+          for (var i = 0; i < wordLength; i++) {
+              var secretChar = secretWord[i];
+              var inputChar = inputWord[i];
+              if (inputChar === secretChar) {
+                  outputColors[i] = 'g';
+                  greenOrYellowChars += inputChar;
+              }
+          }
+          // Add yellows
+          for (var i = 0; i < wordLength; i++) {
+              var secretChar = secretWord[i];
+              var inputChar = inputWord[i];
+              if (secretWord.includes(inputChar) && inputChar !== secretChar) {
+                  var numOfCharsSoFar = charsInWord(greenOrYellowChars, inputChar);
+                  var numOfCharsInSecret = charsInWord(secretWord, inputChar);
+                  if (numOfCharsInSecret > numOfCharsSoFar) {
+                      outputColors[i] = 'y';
+                      greenOrYellowChars += inputChar;
+                  }
+              }
+          }
+          return outputColors.join('');
+      }
+      function sendWord(inputWord) {
+          var colors = tryWords(inputWord, state.secretWord || '');
+          colorRow(state.row - 1, colors);
+          if (colors === winningColors) {
+              state.input = Input.WIN;
+              setTimeout(function () { return popupModal(prompts.win(state.secretWord || '', state.row)); }, animationDurationMs + 1000);
+              return;
+          }
+          if (state.row < rows.NUMBER)
+              return;
+          state.input = Input.LOSE;
+          popupModal(prompts.lose(state.secretWord || ''));
+      }
+      function colorRow(row, colors) {
+          function flipOne(column, row, colors) {
+              var box = getBox(row, column);
+              if (!box)
+                  return;
+              var colorChar = colors[column];
+              switch (colorChar) {
+                  case 'g':
+                      colorBox(box, color.GREEN);
+                      break;
+                  case 'y':
+                      colorBox(box, color.YELLOW);
+                      break;
+                  case 'b':
+                      colorBox(box, color.BLACK);
+                      break;
+              }
+              if (column + 1 < columns.NUMBER) {
+                  setTimeout(function () { return flipOne(column + 1, row, colors); }, animationDurationMs / columns.NUMBER);
+              }
+          }
+          flipOne(0, row, colors);
+      }
+      function getBox(row, column) {
+          return document.querySelector("#box".concat(row).concat(column));
+      }
+      function enter() {
+          var row = state.row, column = state.column;
+          if (column !== columns.NUMBER) {
+              if (state.input === Input.TYPING)
+                  popupModal(prompts.unfinishedWord);
+          }
+          else if (state.input === Input.TYPING) {
+              var inputWord = getInputWord(row);
+              if (wordIsAllowed(inputWord)) {
+                  
+                  state.column = columns.FIRST;
+                  state.row++;
+                  sendWord(inputWord);
+              }
+              else {
+                  popupModal(prompts.badWord);
+              }
+          }
+      }
+      function handleKeyPress(_a) {
+          var key = _a.key;
+          if (state.isModal)
+              closeModal();
+          else if (keyIsLetter(key))
+              keyPressed(key);
+          else if (key === specialKey.backspace)
+              backspace();
+          else if (key === specialKey.enter)
+              enter();
+      }
+      makeGrid(gridBox);
+      state.secretWord = makeSecretWord(normalWords);
+      document.body.addEventListener('keydown', handleKeyPress);
+      document.body.onload = function () { return setBackgroundOpacity(1); };
+   </script>
+   </body>
+</html>
