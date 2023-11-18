@@ -30,7 +30,7 @@ button.black {
 
 button.none {
     background: transparent;
-    width: calc(var(--size) - 4);
-    height: calc(var(--size) - 4);
+    width: calc(var(--size) - 4px);
+    height: calc(var(--size) - 4px);
     border: 2px solid var(--gray);
 }

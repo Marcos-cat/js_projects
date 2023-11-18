@@ -1,3 +1,6 @@
+import { wordleBox } from './wordle-box.js';
+customElements.define('wordle-box', wordleBox);
+
 const template = document.createElement('template');
 template.innerHTML = '<wordle-box />';
 
@@ -5,21 +8,23 @@ export class wordleRow extends HTMLElement {
     constructor() {
         super();
 
-        const shadow = this.attachShadow({ mode: 'open' });
-
         for (let i = 0; i < 5; i++) {
-            shadow.append(template.content.cloneNode(true));
+            this.append(template.content.cloneNode(true));
         }
 
-        this.boxes = shadow.querySelectorAll('wordle-box');
+        this.boxes = this.querySelectorAll('wordle-box');
         this.style.display = 'block';
         this.style.padding = 'none';
-        console.log('connected');
+    }
+
+    connectedCallback() {
+        if (!this.getAttribute('word')) {
+            this.setAttribute('word', '');
+        }
     }
 
     /** @param {string} name @param {string} _ @param {string} newValue */
     attributeChangedCallback(name, _, newValue) {
-        console.log(this.boxes)
         if (name === 'word') {
             for (let i = 0; i < 5; i++) {
                 if (!this.boxes) return;
@@ -32,7 +37,6 @@ export class wordleRow extends HTMLElement {
         return ['word'];
     }
 }
-
 
 /** Modifies `str` to be a string of length 5.
  * This is done by either returning
