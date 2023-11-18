@@ -2,6 +2,14 @@
     font-family: Ubuntu;
 }
 
+wordle-row {
+    display: flex;
+
+    wordle-box {
+        display: inline-block;
+    }
+}
+
 body {
     display: flex;
     flex-direction: column;

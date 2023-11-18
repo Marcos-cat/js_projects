@@ -1,4 +1,4 @@
-button {
+.box {
     --green: #6ca965;
     --yellow: #c8b653;
     --gray: #787c7f;
@@ -8,6 +8,10 @@ button {
     width: var(--size);
     border: none;
 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
     color: white;
     font-weight: bold;
     text-transform: uppercase;
@@ -16,21 +20,19 @@ button {
     margin: 4px;
 }
 
-button.green {
+.box[data-color='green'] {
     background-color: var(--green);
 }
 
-button.yellow {
+.box[data-color='yellow'] {
     background-color: var(--yellow);
 }
 
-button.black {
+.box[data-color='black'] {
     background-color: var(--gray);
 }
 
-button.none {
+.box[data-color='none'] {
     background: transparent;
-    width: calc(var(--size) - 4px);
-    height: calc(var(--size) - 4px);
     border: 2px solid var(--gray);
 }

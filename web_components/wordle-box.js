@@ -5,17 +5,29 @@ const Color = Object.freeze({
     None: 'none',
 });
 
+/** @type string[] */
 const colorCycle = [Color.Black, Color.Yellow, Color.Green];
 
-const template = document.createElement('template');
-template.innerHTML = `
+const interactiveTemplate = document.createElement('template');
+const nonInteractiveTemplate = document.createElement('template');
+const commonHTML = `<link rel="stylesheet" href="wordle-box.css" />`;
 
-<link rel="stylesheet" href="wordle-box.css" />
+interactiveTemplate.innerHTML = `
 
-<button>
+${commonHTML}
+
+<button class="box">
     <slot />
 </button>
+`;
 
+nonInteractiveTemplate.innerHTML = `
+
+${commonHTML}
+
+<div class="box">
+    <span><slot /></span>
+</div>
 `;
 
 export class wordleBox extends HTMLElement {
@@ -25,27 +37,32 @@ export class wordleBox extends HTMLElement {
         const interactive = this.getAttribute('interactive') === 'true';
 
         const shadow = this.attachShadow({ mode: 'open' });
-        shadow.append(template.content.cloneNode(true));
+        shadow.append(
+            (interactive
+                ? interactiveTemplate
+                : nonInteractiveTemplate
+            ).content.cloneNode(true),
+        );
 
-        this.style.display = 'inline-block';
-
-        this.button = shadow.querySelector('button');
+        this.box = shadow.querySelector('.box');
 
         if (interactive) {
-            this.button.onclick = () => {
-                const color = this.getAttribute('color');
+            if (!this.box) return;
+
+            this.box.addEventListener('click', () => {
+                const color = this.getAttribute('color') || '';
 
                 const cycleIndex = colorCycle.indexOf(color);
 
-                // Cycles through the different colors wrapping back around to the
-                // beginning, and if the color is invalid, it defaults to gray
+                // Cycles through the different colors; defaults to Color.Black
                 const newColor =
                     colorCycle[(cycleIndex + 1) % colorCycle.length];
                 this.setAttribute('color', newColor);
-            };
+            });
         }
     }
 
+    // Default color attribute is Color.None
     connectedCallback() {
         if (!this.getAttribute('color')) {
             this.setAttribute('color', Color.None);
@@ -55,8 +72,12 @@ export class wordleBox extends HTMLElement {
     /** @param {string} name */
     attributeChangedCallback(name) {
         if (name === 'color') {
-            if (!this.button) return;
-            this.button.className = this.getAttribute('color') || Color.None;
+            if (!this.box) return;
+
+            this.box.setAttribute(
+                'data-color',
+                this.getAttribute('color') || Color.None,
+            );
         }
     }
 

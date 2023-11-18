@@ -13,8 +13,6 @@ export class wordleRow extends HTMLElement {
         }
 
         this.boxes = this.querySelectorAll('wordle-box');
-        this.style.display = 'block';
-        this.style.padding = 'none';
     }
 
     connectedCallback() {
@@ -38,18 +36,7 @@ export class wordleRow extends HTMLElement {
     }
 }
 
-/** Modifies `str` to be a string of length 5.
- * This is done by either returning
- *
- * ```javascript
- * str.slice(0, 5)
- * ```
- *
- * or by adding trailing spaces
- * @param {string} str
- * @returns {string} A string with length of `5`
- */
-
+/** @param {string} str */
 function makeLengthFive(str) {
     if (str.length >= 5) {
         return str.slice(0, 5);
