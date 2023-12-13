@@ -5,7 +5,7 @@ const Color = Object.freeze({
     None: 'none',
 });
 
-/** @type string[] */
+/** @type {string[]} */
 const colorCycle = [Color.Black, Color.Yellow, Color.Green];
 
 const interactiveTemplate = document.createElement('template');

@@ -3,7 +3,7 @@ customElements.define('wordle-row', wordleRow);
 
 const state = {
     row: 0,
-    /** @type string[] */
+    /** @type {string[]} */
     words: Array(6).fill(''),
 
     get word() {
