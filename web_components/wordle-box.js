@@ -1,12 +1,15 @@
-const Color = Object.freeze({
+const Color = /** @type {const} */ ({
     Green: 'green',
     Yellow: 'yellow',
     Black: 'black',
     None: 'none',
 });
 
-/** @type {string[]} */
-const colorCycle = [Color.Black, Color.Yellow, Color.Green];
+const colorCycle = /** @type {const} */ [
+    Color.Black,
+    Color.Yellow,
+    Color.Green,
+];
 
 const interactiveTemplate = document.createElement('template');
 const nonInteractiveTemplate = document.createElement('template');
@@ -50,8 +53,9 @@ export class wordleBox extends HTMLElement {
             if (!this.box) return;
 
             this.box.addEventListener('click', () => {
-                const color = this.getAttribute('color') || '';
+                let color = this.getAttribute('color') || '';
 
+                // @ts-ignore
                 const cycleIndex = colorCycle.indexOf(color);
 
                 // Cycles through the different colors; defaults to Color.Black
